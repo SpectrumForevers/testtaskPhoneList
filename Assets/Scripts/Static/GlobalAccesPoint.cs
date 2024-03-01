@@ -15,6 +15,9 @@ public class GlobalAccesPoint : MonoBehaviour
     public string fileDataName;
 
     public GameObject profile;
+    public GameObject pofileLitle;
+    
+
     private void Awake()
     {
         instance = this;
