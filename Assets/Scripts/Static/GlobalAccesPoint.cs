@@ -13,6 +13,8 @@ public class GlobalAccesPoint : MonoBehaviour
     public Sprite basicProfileImage;
 
     public string fileDataName;
+
+    public GameObject profile;
     private void Awake()
     {
         instance = this;
