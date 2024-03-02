@@ -20,10 +20,6 @@ public class ProfileManager : MonoBehaviour
     public GameObject EmpoyeeData;
     [HideInInspector] public User user;
     [HideInInspector] public Sprite image;
-    private void Awake()
-    {
-        //InitProfileData();
-    }
     private void Start()
     {
         buttonOpenProfile.GetComponent<Button>().onClick.AddListener(delegate { OpenProfile(); }) ;

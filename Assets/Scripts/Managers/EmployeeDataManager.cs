@@ -83,7 +83,6 @@ public class EmployeeDataManager : MonoBehaviour
 
     private void DeliteProfile(GameObject profile)
     {
-        Debug.Log("TEST");
         for (int i = 0; i < litleProfiles.Count; i++)
         {
 

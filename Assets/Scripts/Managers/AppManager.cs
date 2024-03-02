@@ -57,29 +57,27 @@ public class AppManager : MonoBehaviour
     }
     void LoadImages()
     {
-        // Получаем все файлы из указанной папки
-        string[] imagePaths = Directory.GetFiles(pathImage, "*.png"); // Можете изменить расширение файла, если у вас другие форматы
+        
+        string[] imagePaths = Directory.GetFiles(pathImage, "*.png"); 
 
-        // Проходим по каждому файлу и загружаем его в текстуру
+        
         foreach (string path in imagePaths)
         {
             byte[] fileData = File.ReadAllBytes(path);
 
-            // Загружаем данные изображения в текстуру и добавляем ее в список
+            
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(fileData);
             resources.Add(texture);
         }
-
-        // Теперь у вас есть список текстур, которые вы можете использовать в вашем коде
     }
 
     void ReadJsonFile()
     {
-        // Проверяем, существует ли файл
+        
         if (File.Exists(pathJson))
         {
-            // Читаем весь текст из файла
+            
             jsonData = File.ReadAllText(pathJson);
         }
     }
@@ -111,35 +109,29 @@ public class AppManager : MonoBehaviour
     {
         using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(urlImage))
         {
-            // Ожидание завершения запроса
+            
             yield return www.SendWebRequest();
 
-            // Проверка на наличие ошибок
             if (www.result == UnityWebRequest.Result.Success)
             {
-                // Получение текстуры из загруженных данных
+                
                 Texture2D texture = DownloadHandlerTexture.GetContent(www);
                 
-                // Генерация уникального имени файла
                 string filename = GenerateUniqueFilename("downloaded_image", "png");
                 
-                // Получение относительного пути в папку Resources
                 string relativePath = Path.Combine(resourceFolderName, filename);
 
-                // Сохранение изображения в папку Resources
                 SaveTextureToResources(texture, relativePath);
                 resources.Add(texture);
-                
             }
             else
             {
-                // Обработка ошибок при загрузке изображения
                 Debug.LogError("Ошибка загрузки изображения: " + www.error);
             }
         }
     }
 
-    // Метод для генерации уникального имени файла
+    
     private string GenerateUniqueFilename(string baseName, string extension)
     {
         string timestamp = System.DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -147,14 +139,14 @@ public class AppManager : MonoBehaviour
         return $"{baseName}_{timestamp}_{guid}.{extension}";
     }
 
-    // Метод для сохранения текстуры в папку Resources
+    
     private void SaveTextureToResources(Texture2D texture, string relativePath)
     {
-        // Создание папки, если её нет
+
         string resourceFolderPath = Path.Combine(Application.dataPath, "Resources", resourceFolderName);
         Directory.CreateDirectory(resourceFolderPath);
 
-        // Сохранение текстуры в файл в папке Resources
+
         byte[] bytes = texture.EncodeToPNG();
         string filePath = Path.Combine(Application.dataPath, "Resources", relativePath);
         File.WriteAllBytes(filePath, bytes);
