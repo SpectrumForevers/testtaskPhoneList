@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.IO;
 using System.Collections.Generic;
+using System;
 
 public class AppManager : MonoBehaviour
 {
@@ -36,7 +37,9 @@ public class AppManager : MonoBehaviour
         }
         else
         {
-            LoadImages();
+
+            //LoadImages();
+            LoadFilesFromDirectory(PlayerPrefs.GetString(Prefs.filePathImage));
             ReadJsonFile();
         }
         if (clearAllPrefs == true)
@@ -58,7 +61,7 @@ public class AppManager : MonoBehaviour
     void LoadImages()
     {
         
-        string[] imagePaths = Directory.GetFiles(pathImage, "*.png"); 
+        string[] imagePaths = Directory.GetFiles(pathImage, "*.png");
 
         
         foreach (string path in imagePaths)
@@ -74,7 +77,7 @@ public class AppManager : MonoBehaviour
 
     void ReadJsonFile()
     {
-        
+        LoadFilesFromDirectory(PlayerPrefs.GetString(Prefs.filePathJson));
         if (File.Exists(pathJson))
         {
             
@@ -91,7 +94,7 @@ public class AppManager : MonoBehaviour
             if (webRequest.result == UnityWebRequest.Result.Success)
             {
                 jsonData = webRequest.downloadHandler.text;
-
+                SaveFile(jsonData, dataName);
                 System.IO.File.WriteAllText(savePath, jsonData);
                 Debug.Log("JSON saved to " + savePath);
             }
@@ -101,7 +104,71 @@ public class AppManager : MonoBehaviour
             }
         }
     }
-    public void DownloadImage()
+    public void SaveFile(string data, string fileName)
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, fileName);
+
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                writer.Write(data);
+                PlayerPrefs.SetString(Prefs.filePathJson, filePath);
+                Debug.Log("String saved successfully: " + filePath);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error saving file: " + e.Message);
+        }
+    }
+    public void LoadFilesFromDirectory(string directoryPath)
+    {
+        try
+        {
+            if (Directory.Exists(directoryPath))
+            {
+                string[] files = Directory.GetFiles(directoryPath);
+
+                foreach (string filePath in files)
+                {
+                    string fileName = Path.GetFileName(filePath);
+                    byte[] fileData = File.ReadAllBytes(filePath);
+
+                    // Здесь вы можете обрабатывать данные, загруженные из каждого файла
+                    // Например, можно определить тип файла по расширению и соответствующим образом его обработать
+                    if (fileName.EndsWith(".png"))
+                    {
+                        Texture2D texture = new Texture2D(2, 2);
+                        texture.LoadImage(fileData);
+                        resources.Add(texture);
+                    }
+                    else if (fileName.EndsWith(".json"))
+                    {
+                        // Обработка файла JSON
+                        jsonData = File.ReadAllText(filePath);
+                        
+                    }
+                    else
+                    {
+                        // Другие типы файлов
+                        Debug.Log("Loaded file: " + fileName);
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogError("Directory not found: " + directoryPath);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error loading files from directory: " + e.Message);
+        }
+    }
+
+
+public void DownloadImage()
     {
         StartCoroutine(DownloadImageCoroutine());
     }
@@ -120,7 +187,7 @@ public class AppManager : MonoBehaviour
                 string filename = GenerateUniqueFilename("downloaded_image", "png");
                 
                 string relativePath = Path.Combine(resourceFolderName, filename);
-
+                PlayerPrefs.SetString(Prefs.filePathImage, relativePath);
                 SaveTextureToResources(texture, relativePath);
                 resources.Add(texture);
             }
