@@ -38,6 +38,9 @@ public class AppManager : MonoBehaviour
         {
             LoadImages();
             ReadJsonFile();
+            //LoadFilesFromFolder(PlayerPrefs.GetString(Prefs.pathImage));
+            //LoadFilesFromFolder(PlayerPrefs.GetString(Prefs.pathJson));
+            
         }
         if (clearAllPrefs == true)
         {
@@ -82,56 +85,119 @@ public class AppManager : MonoBehaviour
         }
     }
 
-            IEnumerator DownloadJson()
+    private void LoadFilesFromFolder(string folderPath)
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(urlJson))
+        folderPath = Path.GetDirectoryName(Path.GetFullPath(folderPath));
+
+        if (Directory.Exists(folderPath))
         {
-            yield return webRequest.SendWebRequest();
+            string[] files = Directory.GetFiles(folderPath);
 
-            if (webRequest.result == UnityWebRequest.Result.Success)
+            foreach (string filePath in files)
             {
-                jsonData = webRequest.downloadHandler.text;
+                string extension = Path.GetExtension(filePath);
 
-                System.IO.File.WriteAllText(savePath, jsonData);
-                Debug.Log("JSON saved to " + savePath);
+                if (extension.Equals(".png", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    byte[] fileData = File.ReadAllBytes(filePath);
+
+                    Texture2D texture = new Texture2D(2, 2);
+                    texture.LoadImage(fileData);
+                    resources.Add(texture);
+                }
+                else if (extension.Equals(".json", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    
+                    jsonData = File.ReadAllText(filePath);
+                }
             }
-            else
-            {
-                Debug.LogError("Failed to download JSON: " + webRequest.error);
-            }
+
+            
+            Debug.Log("Loaded " + resources.Count + " PNG files from folder: " + folderPath);
+
+            
+            Debug.Log("Loaded JSON data: " + jsonData);
+        }
+        else
+        {
+            Debug.LogError("Folder not found: " + folderPath);
+        }
+    
+    }
+
+
+private IEnumerator DownloadJson()
+    {
+        UnityWebRequest webRequest = UnityWebRequest.Get(urlJson);
+        AsyncOperation asyncOperation = webRequest.SendWebRequest();
+
+        while (!asyncOperation.isDone)
+        {
+            yield return null;
+        }
+
+        if (webRequest.result == UnityWebRequest.Result.Success)
+        {
+            jsonData = webRequest.downloadHandler.text;
+
+            
+            string fullPath = Path.Combine(Application.persistentDataPath, savePath);
+
+            File.WriteAllText(fullPath, jsonData);
+            PlayerPrefs.SetString(Prefs.pathJson, fullPath);
+            pathJson = fullPath;
+            
+        }
+        else
+        {
+            Debug.LogError("Failed to download JSON: " + webRequest.error);
         }
     }
-    public void DownloadImage()
+
+public void DownloadImage()
     {
         StartCoroutine(DownloadImageCoroutine());
     }
+    
     private IEnumerator DownloadImageCoroutine()
     {
-        using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(urlImage))
+        UnityWebRequest www = UnityWebRequestTexture.GetTexture(urlImage);
+        AsyncOperation asyncOperation = www.SendWebRequest();
+
+        while (!asyncOperation.isDone)
         {
+            yield return null; 
+        }
+
+        if (www.result == UnityWebRequest.Result.Success)
+        {
+            Texture2D texture = DownloadHandlerTexture.GetContent(www);
+            string filename = GenerateUniqueFilename("downloaded_image", "png");
+            string relativePath = Path.Combine(resourceFolderName, filename);
+
             
-            yield return www.SendWebRequest();
-
-            if (www.result == UnityWebRequest.Result.Success)
-            {
-                
-                Texture2D texture = DownloadHandlerTexture.GetContent(www);
-                
-                string filename = GenerateUniqueFilename("downloaded_image", "png");
-                
-                string relativePath = Path.Combine(resourceFolderName, filename);
-
-                SaveTextureToResources(texture, relativePath);
-                resources.Add(texture);
-            }
-            else
-            {
-                Debug.LogError("Ошибка загрузки изображения: " + www.error);
-            }
+            string fullPath = Path.Combine(Application.persistentDataPath, relativePath);
+            PlayerPrefs.SetString(Prefs.pathImage, fullPath);
+            pathImage = fullPath;
+            SaveTextureToPath(texture, fullPath);
+            resources.Add(texture);
+        }
+        else
+        {
+            Debug.LogError("Ошибка загрузки изображения: " + www.error);
         }
     }
 
-    
+    private void SaveTextureToPath(Texture2D texture, string path)
+    {
+        if (Directory.Exists(Path.GetDirectoryName(Path.GetFullPath(path))))
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path)));
+
+        byte[] bytes = texture.EncodeToPNG();
+        File.WriteAllBytes(path, bytes);
+        Debug.Log("Image saved to " + path);
+    }
+
     private string GenerateUniqueFilename(string baseName, string extension)
     {
         string timestamp = System.DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -140,17 +206,4 @@ public class AppManager : MonoBehaviour
     }
 
     
-    private void SaveTextureToResources(Texture2D texture, string relativePath)
-    {
-
-        string resourceFolderPath = Path.Combine(Application.dataPath, "Resources", resourceFolderName);
-        Directory.CreateDirectory(resourceFolderPath);
-
-
-        byte[] bytes = texture.EncodeToPNG();
-        string filePath = Path.Combine(Application.dataPath, "Resources", relativePath);
-        File.WriteAllBytes(filePath, bytes);
-
-        Debug.Log("Изображение сохранено в файл: " + relativePath);
-    }
 }

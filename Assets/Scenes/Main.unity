@@ -579,6 +579,14 @@ PrefabInstance:
       propertyPath: enableEmployeedataBuf
       value: 
       objectReference: {fileID: 6157579}
+    - target: {fileID: 993042642483071349, guid: b5d638118d461ca4088a5aaa85884bfc, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 993042642483071349, guid: b5d638118d461ca4088a5aaa85884bfc, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -49.78784
+      objectReference: {fileID: 0}
     - target: {fileID: 1016943016805413388, guid: b5d638118d461ca4088a5aaa85884bfc, type: 3}
       propertyPath: m_Name
       value: Favorite
