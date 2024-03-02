@@ -17,14 +17,18 @@ public class AppManager : MonoBehaviour
     [SerializeField] string pathImage;
     [Header("Path for json")]
     [SerializeField] string pathJson;
-    private string resourceFolderName = "DownloadedImages";
-    public string savePath = "Assets/Json/myJsonFile.json";
+    private string resourceFolderName = "ResoursesTest";
     [SerializeField] string jsonData;
-
+    string folderName = "ResoursesTest";
     [SerializeField] List<Texture2D> resources = new List<Texture2D>();
     [SerializeField] bool clearAllPrefs = false;
     private void Awake()
     {
+        if (clearAllPrefs == true)
+        {
+            PlayerPrefs.DeleteAll();
+        }
+        Debug.Log(PlayerPrefs.GetInt(Prefs.firstStartApp));
         if (PlayerPrefs.GetInt(Prefs.firstStartApp) == 0)
         {
             StartCoroutine(DownloadJson());
@@ -32,24 +36,23 @@ public class AppManager : MonoBehaviour
             {
                 DownloadImage();
             }
-            PlayerPrefs.SetInt(Prefs.firstStartApp, 2);
+            
         }
         else
         {
-            LoadImages();
-            ReadJsonFile();
-            //LoadFilesFromFolder(PlayerPrefs.GetString(Prefs.pathImage));
-            //LoadFilesFromFolder(PlayerPrefs.GetString(Prefs.pathJson));
+            //LoadImages();
+            //ReadJsonFile();
+            LoadFilesFromFolder(PlayerPrefs.GetString(Prefs.pathImage));
+            LoadFilesFromFolder(PlayerPrefs.GetString(Prefs.pathJson));
             
         }
-        if (clearAllPrefs == true)
-        {
-            PlayerPrefs.DeleteAll();
-        }
+        
+        
     }
     private void Update()
     {
-        if(resources.Count == countDownloadForFirstStartApp)
+        
+        if (resources.Count == countDownloadForFirstStartApp)
         {
             EventBus.listImages?.Invoke(resources);
         }
@@ -139,10 +142,12 @@ private IEnumerator DownloadJson()
         if (webRequest.result == UnityWebRequest.Result.Success)
         {
             jsonData = webRequest.downloadHandler.text;
+            //string relativePath = Path.Combine(resourceFolderName, dataName);
 
+            string fullPath = Path.Combine(Application.persistentDataPath, folderName);
             
-            string fullPath = Path.Combine(Application.persistentDataPath, savePath);
-
+            if (Directory.Exists(Path.GetDirectoryName(Path.GetFullPath(fullPath))))
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(fullPath)));
             File.WriteAllText(fullPath, jsonData);
             PlayerPrefs.SetString(Prefs.pathJson, fullPath);
             pathJson = fullPath;
@@ -168,15 +173,17 @@ public void DownloadImage()
         {
             yield return null; 
         }
-
+        
         if (www.result == UnityWebRequest.Result.Success)
         {
             Texture2D texture = DownloadHandlerTexture.GetContent(www);
             string filename = GenerateUniqueFilename("downloaded_image", "png");
-            string relativePath = Path.Combine(resourceFolderName, filename);
+            //string relativePath = Path.Combine(resourceFolderName, filename);
 
-            
-            string fullPath = Path.Combine(Application.persistentDataPath, relativePath);
+
+            string fullPath = Path.Combine(Application.persistentDataPath, folderName);
+            if (Directory.Exists(Path.GetDirectoryName(Path.GetFullPath(fullPath))))
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(fullPath)));
             PlayerPrefs.SetString(Prefs.pathImage, fullPath);
             pathImage = fullPath;
             SaveTextureToPath(texture, fullPath);
@@ -186,12 +193,12 @@ public void DownloadImage()
         {
             Debug.LogError("Ошибка загрузки изображения: " + www.error);
         }
+        PlayerPrefs.SetInt(Prefs.firstStartApp, 2);
     }
 
     private void SaveTextureToPath(Texture2D texture, string path)
     {
-        if (Directory.Exists(Path.GetDirectoryName(Path.GetFullPath(path))))
-            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path)));
+
 
         byte[] bytes = texture.EncodeToPNG();
         File.WriteAllBytes(path, bytes);

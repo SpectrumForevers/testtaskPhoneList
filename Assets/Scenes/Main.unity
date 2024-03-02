@@ -859,7 +859,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4524057877163665874, guid: 256e3f214f294bf48af8ec456e3bc916, type: 3}
       propertyPath: pathJson
-      value: C:\UnityGames\testtaskPhoneList\Assets\Json\myJsonFile.json
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4524057877163665874, guid: 256e3f214f294bf48af8ec456e3bc916, type: 3}
       propertyPath: urlImage
@@ -867,7 +867,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4524057877163665874, guid: 256e3f214f294bf48af8ec456e3bc916, type: 3}
       propertyPath: pathImage
-      value: C:\UnityGames\testtaskPhoneList\Assets\Resources\DownloadedImages
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4524057877163665874, guid: 256e3f214f294bf48af8ec456e3bc916, type: 3}
       propertyPath: clearAllPrefs
