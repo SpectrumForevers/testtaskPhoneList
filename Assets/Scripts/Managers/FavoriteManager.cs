@@ -39,12 +39,13 @@ public class FavoriteManager : MonoBehaviour
     {
         GameObject buf = null;
         
-        for (int i = profileLitle.Count; i > 0; i--)
+        for (int i = profileLitle.Count-1; i >= 0; i--)
         {
-            if (profileLitle[i].GetComponent<Profile>().profileData.name == profile.GetComponent<Profile>().profileData.name)
+            
+            if (profileLitle[i].GetComponent<ProfileManager>().profileData.idProfile == profile.GetComponent<ProfileManager>().profileData.idProfile)
             {
                 buf = profileLitle[i];
-                Debug.Log("test");
+                
             }
         }
         profileLitle.Remove(buf);

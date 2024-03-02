@@ -6,12 +6,12 @@ using UnityEngine.UI;
 public class ProfileData : ScriptableObject
 {
     public Sprite profileImage;
-
+    public int idProfile;
     public string profileName;
     public string profileGender;
     public string profileEmail;
     public string profileAdress;
-
+    
     public FavoriteCheck profileFavoriteCheck;
 
 }

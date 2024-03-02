@@ -24,11 +24,13 @@ public class EmployeeDataManager : MonoBehaviour
     {
         EventBus.listImages += ListImageGet;
         EventBus.json += JsonGet;
+        EventBus.profileLitleDelite += DeliteProfile;
     }
     private void OnDisable()
     {
         EventBus.listImages -= ListImageGet;
         EventBus.json -= JsonGet;
+        EventBus.profileLitleDelite -= DeliteProfile;
     }
     private void Start()
     {
@@ -79,6 +81,20 @@ public class EmployeeDataManager : MonoBehaviour
         }
     }
 
+    private void DeliteProfile(GameObject profile)
+    {
+        Debug.Log("TEST");
+        for (int i = 0; i < litleProfiles.Count; i++)
+        {
+
+            if (litleProfiles[i].GetComponent<ProfileManager>().profileData.idProfile == profile.GetComponent<ProfileManager>().profileData.idProfile)
+            {
+                litleProfiles[i].GetComponent<ProfileManager>().profileData.profileFavoriteCheck = FavoriteCheck.NonFavorite;
+                
+                litleProfiles[i].GetComponent<ProfileManager>().ChangeImage();
+            }
+        }
+    }
 }
 
 [System.Serializable]

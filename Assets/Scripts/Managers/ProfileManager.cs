@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UI;
 
 public class ProfileManager : MonoBehaviour
@@ -10,7 +11,7 @@ public class ProfileManager : MonoBehaviour
     [SerializeField] GameObject imageProfile;
     [SerializeField] GameObject buttonOpenProfile;
     [SerializeField] GameObject favorite;
-    [SerializeField] ProfileData profileData;
+    public ProfileData profileData;
     
     [SerializeField] TMP_Text nameProfile;
     [SerializeField] TMP_Text mail;
@@ -28,6 +29,7 @@ public class ProfileManager : MonoBehaviour
         buttonOpenProfile.GetComponent<Button>().onClick.AddListener(delegate { OpenProfile(); }) ;
         favorite.GetComponent<Button>().onClick.AddListener(delegate { FavoriteSwitch(); });
     }
+
 
     private void OpenProfile()
     {
@@ -56,6 +58,12 @@ public class ProfileManager : MonoBehaviour
             return;
         }
     }
+
+    public void ChangeImage()
+    {
+        favorite.GetComponent<Image>().sprite = GlobalAccesPoint.instance.favoriteUncheck;
+    }
+
     public void InitProfileData(Texture2D texture2D)
     {
         profileData = ScriptableObject.CreateInstance<ProfileData>();
@@ -73,5 +81,6 @@ public class ProfileManager : MonoBehaviour
         profileData.profileAdress = ipAddress.text;
 
         profileData.profileGender = user.gender;
+        profileData.idProfile = user.id;
     }
 }
