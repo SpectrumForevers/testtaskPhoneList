@@ -6,10 +6,12 @@ using UnityEngine.Assertions.Must;
 using UnityEngine.UI;
 public class Profile : MonoBehaviour
 {
-    [SerializeField] GameObject profileLitle;
+    public GameObject profileLitle;
 
-    [SerializeField] ProfileData profileData;
+    public ProfileData profileData;
 
+    [SerializeField] GameObject closeButton;
+    
     [SerializeField] Image favoriteImage;
 
     [SerializeField] Image profileImage;
@@ -19,12 +21,19 @@ public class Profile : MonoBehaviour
     [SerializeField] TMP_Text profileAdress;
     [SerializeField] TMP_Text profileEmail;
 
-    private void Awake()
+    [HideInInspector] public GameObject EmpoyeeData;
+    private void Start()
     {
         if (profileData != null)
         {
             InitProfile();
         }
+        closeButton.GetComponent<Button>().onClick.AddListener(delegate { CloseProfile(); });
+    }
+    private void CloseProfile()
+    {
+        EmpoyeeData.transform.GetChild(0).gameObject.SetActive(true);
+        Destroy(gameObject);
     }
     void InitProfile()
     {
